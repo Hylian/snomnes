@@ -1,4 +1,8 @@
-use num_traits::FromPrimitive;
+mod opcodes;
+mod addressing_modes;
+
+use addressing_modes::*;
+use opcodes::*;
 
 struct Registers {
     a: u8,
@@ -22,80 +26,10 @@ impl Default for Registers {
     }
 }
 
-enum AddressingMode {
-    Implicit,
-    Accumulator,
-    Immediate,
-    ZeroPage,
-    ZeroPageX,
-    ZeroPageY,
-    Relative,
-    Absolute,
-    AbsoluteX,
-    AbsoluteY,
-    Indirect,
-    IndirectX,
-    IndirectY,
-}
-
-#[derive(Copy, Clone, PartialEq)]
-enum Instruction {
-    Adc,
-    And,
-    Asl,
-    Bcc,
-    Bcs,
-    Beq,
-    Bit,
-    Bmi,
-    Bne,
-    Bpl,
-    Brk,
-    Bvc,
-    Bvs,
-    Clc,
-    Cld,
-    Cli,
-    Clv,
-    Cmp,
-    Cpx,
-    Cpy,
-    Dec,
-    Dex,
-    Dey,
-    Eor,
-    Inc,
-    Inx,
-    Iny,
-    Jmp,
-    Jsr,
-    Lda,
-    Ldx,
-    Ldy,
-    Lsr,
-    Nop,
-    Ora,
-    Pha,
-    Php,
-    Pla,
-    Plp,
-    Rol,
-    Ror,
-    Rti,
-    Rts,
-    Sbc,
-    Sec,
-    Sed,
-    Sei,
-    Sta,
-    Stx,
-    Sty,
-    Tax,
-    Tay,
-    Tsx,
-    Txa,
-    Txs,
-    Tya,
+struct Cpu {
+    mem: [u8; 0x2000],
+    regs: Registers,
+    clock: u64,
 }
 
 fn decode(opcode: u8) -> (Instruction, AddressingMode) {
@@ -247,7 +181,3 @@ fn decode(opcode: u8) -> (Instruction, AddressingMode) {
     }
 }
 
-#[test]
-fn testme() {
-    assert!(OpCode::from_u8(0x69).unwrap() == OpCode::AdcImm);
-}
