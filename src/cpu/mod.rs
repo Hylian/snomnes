@@ -117,7 +117,21 @@ impl Cpu {
         }
     }
 
-    //fn store(am: AddressingMode) -> () {}
+    fn store(&mut self, am: AddressingMode, data: u8) -> () {
+        match am {
+            AddressingMode::Implicit => {
+            },
+            AddressingMode::Accumulator => {
+                self.regs.a = data;
+            },
+            AddressingMode::Immediate => {
+            },
+            AddressingMode::ZeroPage => {
+            },
+
+
+        }
+    }
 }
 
 
