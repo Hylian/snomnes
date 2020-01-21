@@ -32,163 +32,155 @@ struct Cpu {
     clock: u64,
 }
 
-
 impl Cpu {
     fn load(&mut self, am: AddressingMode) -> u8 {
         match am {
-            AddressingMode::Implicit => {
-                0
-            },
-            AddressingMode::Accumulator => {
-                self.regs.a
-            },
+            AddressingMode::Implicit => 0,
+            AddressingMode::Accumulator => self.regs.a,
             AddressingMode::Immediate => {
                 let val = self.mem[self.regs.pc as usize];
                 self.regs.pc = self.regs.pc + 1;
                 val
-            },
+            }
             AddressingMode::ZeroPage => {
                 let val = self.mem[self.mem[self.regs.pc as usize] as usize];
                 self.regs.pc = self.regs.pc + 1;
                 val
-            },
+            }
             AddressingMode::ZeroPageX => {
                 let addr = self.mem[self.regs.pc as usize].wrapping_add(self.regs.x);
                 let val = self.mem[addr as usize];
                 self.regs.pc = self.regs.pc + 1;
                 val
-            },
+            }
             AddressingMode::ZeroPageY => {
                 let addr = self.mem[self.regs.pc as usize].wrapping_add(self.regs.y);
                 let val = self.mem[addr as usize];
                 self.regs.pc = self.regs.pc + 1;
                 val
-            },
-            AddressingMode::Relative => {
-                0
-            },
+            }
+            AddressingMode::Relative => 0,
             AddressingMode::Absolute => {
-                let addr = ((self.mem[self.regs.pc as usize] as usize) << 8) + (self.mem[(self.regs.pc + 1) as usize] as usize);
+                let addr = ((self.mem[self.regs.pc as usize] as usize) << 8)
+                    + (self.mem[(self.regs.pc + 1) as usize] as usize);
                 let val = self.mem[addr];
                 self.regs.pc = self.regs.pc + 2;
                 val
-            },
+            }
             AddressingMode::AbsoluteX => {
-                let base_addr = ((self.mem[self.regs.pc as usize] as usize) << 8) + (self.mem[(self.regs.pc + 1) as usize] as usize);
+                let base_addr = ((self.mem[self.regs.pc as usize] as usize) << 8)
+                    + (self.mem[(self.regs.pc + 1) as usize] as usize);
                 let addr = (base_addr as u16).wrapping_add(self.regs.x as u16) as usize;
                 let val = self.mem[addr];
                 self.regs.pc = self.regs.pc + 2;
                 val
-            },
+            }
             AddressingMode::AbsoluteY => {
-                let base_addr = ((self.mem[self.regs.pc as usize] as usize) << 8) + (self.mem[(self.regs.pc + 1) as usize] as usize);
+                let base_addr = ((self.mem[self.regs.pc as usize] as usize) << 8)
+                    + (self.mem[(self.regs.pc + 1) as usize] as usize);
                 let addr = (base_addr as u16).wrapping_add(self.regs.y as u16) as usize;
                 let val = self.mem[addr];
                 self.regs.pc = self.regs.pc + 2;
                 val
-            },
-            AddressingMode::Indirect => {
-                0
-            },
+            }
+            AddressingMode::Indirect => 0,
             AddressingMode::IndirectX => {
                 let addr_lo = self.mem[self.regs.pc as usize].wrapping_add(self.regs.x);
                 let val_lo = self.mem[addr_lo as usize];
 
                 let addr_hi = addr_lo.wrapping_add(1);
-                let val_hi = self.mem[addr_hi as usize] << 8;
+                let val_hi = (self.mem[addr_hi as usize] as u16) << 8;
 
                 self.regs.pc = self.regs.pc + 2;
 
                 self.mem[(addr_hi | addr_lo) as usize]
-            },
+            }
             AddressingMode::IndirectY => {
                 let addr_lo = self.mem[self.regs.pc as usize];
                 let val_lo = self.mem[addr_lo as usize];
 
                 let addr_hi = addr_lo.wrapping_add(1);
-                let val_hi = self.mem[addr_hi as usize] << 8;
+                let val_hi = (self.mem[addr_hi as usize] as u16) << 8;
 
                 let addr = (addr_hi | addr_lo).wrapping_add(self.regs.y);
 
                 self.regs.pc = self.regs.pc + 2;
 
                 self.mem[addr as usize]
-            },
+            }
         }
     }
 
     fn store(&mut self, am: AddressingMode, data: u8) -> () {
         match am {
-            AddressingMode::Implicit => {
-            },
+            AddressingMode::Implicit => {}
             AddressingMode::Accumulator => {
                 self.regs.a = data;
-            },
-            AddressingMode::Immediate => {
-            },
+            }
+            AddressingMode::Immediate => {}
             AddressingMode::ZeroPage => {
                 self.mem[self.mem[self.regs.pc as usize] as usize] = data;
                 self.regs.pc = self.regs.pc + 1;
-            },
+            }
             AddressingMode::ZeroPageX => {
                 let addr = self.mem[self.regs.pc as usize].wrapping_add(self.regs.x);
                 self.mem[addr as usize] = data;
                 self.regs.pc = self.regs.pc + 1;
-            },
+            }
             AddressingMode::ZeroPageY => {
                 let addr = self.mem[self.regs.pc as usize].wrapping_add(self.regs.y);
                 self.mem[addr as usize] = data;
                 self.regs.pc = self.regs.pc + 1;
-            },
-            AddressingMode::Relative => {
-            },
+            }
+            AddressingMode::Relative => {}
             AddressingMode::Absolute => {
-                let addr = ((self.mem[self.regs.pc as usize] as usize) << 8) + (self.mem[(self.regs.pc + 1) as usize] as usize);
+                let addr = ((self.mem[self.regs.pc as usize] as usize) << 8)
+                    + (self.mem[(self.regs.pc + 1) as usize] as usize);
                 self.mem[addr] = data;
                 self.regs.pc = self.regs.pc + 2;
-            },
+            }
             AddressingMode::AbsoluteX => {
-                let base_addr = ((self.mem[self.regs.pc as usize] as usize) << 8) + (self.mem[(self.regs.pc + 1) as usize] as usize);
+                let base_addr = ((self.mem[self.regs.pc as usize] as usize) << 8)
+                    + (self.mem[(self.regs.pc + 1) as usize] as usize);
                 let addr = (base_addr as u16).wrapping_add(self.regs.x as u16) as usize;
-                self.mem[addr] = data; 
+                self.mem[addr] = data;
                 self.regs.pc = self.regs.pc + 2;
-            },
+            }
             AddressingMode::AbsoluteY => {
-                let base_addr = ((self.mem[self.regs.pc as usize] as usize) << 8) + (self.mem[(self.regs.pc + 1) as usize] as usize);
+                let base_addr = ((self.mem[self.regs.pc as usize] as usize) << 8)
+                    + (self.mem[(self.regs.pc + 1) as usize] as usize);
                 let addr = (base_addr as u16).wrapping_add(self.regs.y as u16) as usize;
                 self.mem[addr] = data;
                 self.regs.pc = self.regs.pc + 2;
-            },
-            AddressingMode::Indirect => {
-            },
+            }
+            AddressingMode::Indirect => {}
             AddressingMode::IndirectX => {
                 let addr_lo = self.mem[self.regs.pc as usize].wrapping_add(self.regs.x);
                 let val_lo = self.mem[addr_lo as usize];
 
                 let addr_hi = addr_lo.wrapping_add(1);
-                let val_hi = self.mem[addr_hi as usize] << 8;
+                let val_hi = (self.mem[addr_hi as usize] as u16) << 8;
 
                 self.mem[(addr_hi | addr_lo) as usize] = data;
 
                 self.regs.pc = self.regs.pc + 2;
-            },
+            }
             AddressingMode::IndirectY => {
                 let addr_lo = self.mem[self.regs.pc as usize];
                 let val_lo = self.mem[addr_lo as usize];
 
                 let addr_hi = addr_lo.wrapping_add(1);
-                let val_hi = self.mem[addr_hi as usize] << 8;
+                let val_hi = (self.mem[addr_hi as usize] as u16) << 8;
 
                 let addr = (addr_hi | addr_lo).wrapping_add(self.regs.y);
 
                 self.mem[addr as usize] = data;
 
                 self.regs.pc = self.regs.pc + 2;
-            },
+            }
         }
     }
 }
-
 
 fn decode(opcode: u8) -> (Instruction, AddressingMode) {
     match opcode {
